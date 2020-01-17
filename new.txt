@@ -2,15 +2,17 @@ string query = string.Format ("Uid = Guid('{0}')", element.RequirementUID);
 					var req = EntityManager<MY_Requirement, long>.Instance.Find (query).FirstOrDefault ();
 					var message = InterfaceActivator.Create<ChannelMessage> ();
 					message.Recipients.Add (req.Initiator);
-					message.Subject = "По потребности запрошены уточнения";
+					message.Subject = "В закупе по потребности отказано";
 					message.MessageType = ChannelMessageType.Post;
 					message.CreationAuthor = EntityManager<User, long>.Instance.Find (n => n.Id == 2).FirstOrDefault ();
 					message.CreationDate = DateTime.Now;
 					message.FullMessage = string.Format (@"Добрый день, {0}.
-Уведомляем вас о том, что по потребности «{1}» были запрошены уточнения. Перейдите в карточку потребности и внесите необходимую информацию.", req.Initiator.FullName, req.Name);
+Уведомляем вас о том, что по потребности «{1}» было отказано в закупе. 
+Комментарий по отказу: {2} ({3}).
+Перейдите в карточку потребности чтобы посмотреть необходимую информацию информацию.", req.Initiator.FullName, req.Name, element.CommentOfRejection, context.Buyer.FullName);
 					message.Save ();
-					req.ClarificationComments = element.CommentOfClarification;
-					req.ClarificationRequested = true;
+					req.RefuseComments = element.CommentOfRejection;
+					req.PurchaseDenied = true;
 					//обновление данных по заполненным полям
 					req.Supplier1 = element.Provider1 != null ? element.Provider1 : req.Supplier1;
 					req.PriceSupplier1 = element.CostSupplier1.HasValue ? element.CostSupplier1 : req.PriceSupplier1;
