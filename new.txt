@@ -1,0 +1,25 @@
+string query = string.Format ("Uid = Guid('{0}')", element.RequirementUID);
+					var req = EntityManager<MY_Requirement, long>.Instance.Find (query).FirstOrDefault ();
+					var message = InterfaceActivator.Create<ChannelMessage> ();
+					message.Recipients.Add (req.Initiator);
+					message.Subject = "По потребности запрошены уточнения";
+					message.MessageType = ChannelMessageType.Post;
+					message.CreationAuthor = EntityManager<User, long>.Instance.Find (n => n.Id == 2).FirstOrDefault ();
+					message.CreationDate = DateTime.Now;
+					message.FullMessage = string.Format (@"Добрый день, {0}.
+Уведомляем вас о том, что по потребности «{1}» были запрошены уточнения. Перейдите в карточку потребности и внесите необходимую информацию.", req.Initiator.FullName, req.Name);
+					message.Save ();
+					req.ClarificationComments = element.CommentOfClarification;
+					req.ClarificationRequested = true;
+					//обновление данных по заполненным полям
+					req.Supplier1 = element.Provider1 != null ? element.Provider1 : req.Supplier1;
+					req.PriceSupplier1 = element.CostSupplier1.HasValue ? element.CostSupplier1 : req.PriceSupplier1;
+					req.CommentsSupplier1 = element.CommentSupplier1;
+					req.Supplier2 = element.Provider2 != null ? element.Provider2 : req.Supplier2;
+					req.PriceSupplier2 = element.CostSupplier2.HasValue ? element.CostSupplier2 : req.PriceSupplier2;
+					req.CommentsSupplier2 = element.CommentSupplier2;
+					req.Supplier3 = element.Provider3 != null ? element.Provider3 : req.Supplier3;
+					req.PriceSupplier3 = element.CostSupplier3.HasValue ? element.CostSupplier3 : req.PriceSupplier3;
+					req.CommentsSupplier3 = element.CommentSupplier3;
+					req.SupplierWinner = element.ProviderWinner != null ? element.ProviderWinner : req.SupplierWinner;
+					req.PriceWinner = element.CostWinnerSupplier.HasValue ? element.CostWinnerSupplier : req.PriceWinner;
